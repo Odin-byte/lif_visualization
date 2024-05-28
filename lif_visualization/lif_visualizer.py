@@ -12,7 +12,7 @@ class LIF_Visualizer:
 
     def __init__(self) -> None:
         """This class allows to load in multiple LIF files and visualize them using networkx."""
-        self.current_file = ""
+        self.current_filepath = ""
         self.lif_data = {}
         self.layouts = {}
         self.stationDict = {}
@@ -30,6 +30,21 @@ class LIF_Visualizer:
             self.layouts[layout["layoutId"]] = layout
 
         return
+
+    def layout_selection(self) -> str:
+        number_layout = -1
+        # Get the names and ids of the available layouts
+        for index, layoutId in enumerate(self.layouts):
+            print(f"Layout {index}: {layoutId}")
+        print("Enter a valid number of a layout to visualize it: ")
+        # Check if the number is valid
+        while number_layout < 0 or number_layout >= len(self.layouts):
+            try:
+                number_layout = int(input())
+            except:
+                print("Enter a integer value.")
+
+        return list(self.layouts)[number_layout]
 
     def visualize_layout(self, layout_id: str) -> None:
         """Visualizes a single layout selected by its layout id
