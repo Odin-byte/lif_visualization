@@ -52,7 +52,7 @@ class LIF_Visualizer:
         colors_nodes = nx.get_node_attributes(G, "color").values()
         weights = nx.get_edge_attributes(G, "weight").values()
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(num=layout["layoutName"])
 
         nx.draw(
             G,
@@ -65,16 +65,22 @@ class LIF_Visualizer:
             connectionstyle="Arc3, rad=0.02",
         )
 
-        self._add_stationTexts_to_graph(pos, ax)
+        self._add_stationTexts_to_graph(pos, ax, hide_overlapping=True)
+        plt.tight_layout()
+        fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
         plt.show()
 
     def _add_nodes_to_graph(self, layout: dict, graph: nx.Graph) -> None:
+        """Adds nodes based on a LIF layout JSON object to a networkx graph
+
+        Args:
+            layout (dict): Dictionary holding the information from one layout JSON structure
+            graph (nx.Graph): nx.Graph object to add the nodes to
+        """
         # Extract the list of nodes from the layout
         nodes = layout["nodes"]
 
         self._fill_stationDict(layout["stations"])
-
-        print(self.stationDict)
 
         # Loop over all nodes within the layout
         for node in nodes:
@@ -92,6 +98,12 @@ class LIF_Visualizer:
         return
 
     def _add_edges_to_graph(self, layout: dict, graph: nx.Graph) -> None:
+        """Adds edges based on a LIF layout JSON object to a networkx graph
+
+        Args:
+            layout (dict): Dictionary holding the information from one layout JSON structure
+            graph (nx.Graph): nx.Graph object to add the edges to
+        """
         # Extract the list of edges from the layout
         edges = layout["edges"]
 
@@ -111,7 +123,11 @@ class LIF_Visualizer:
         return
 
     def _fill_stationDict(self, stations: dict) -> None:
-        print(stations)
+        """Called to fill a dict object used to map the stations of the LIF file to their networkx nodes
+
+        Args:
+            stations (dict): JSON structure of stations within one LIF layout
+        """
         # Create dict
         stationDict = {}
 
@@ -124,18 +140,59 @@ class LIF_Visualizer:
 
         self.stationDict = stationDict
 
-    def _add_stationTexts_to_graph(self, positions: dict, ax) -> None:
+    def _add_stationTexts_to_graph(
+        self, positions: dict, ax, hide_overlapping: bool = False
+    ) -> None:
+        """Used to annotate the networkx nodes with their corresponding stationNames if available
+
+        Args:
+            positions (dict): Positions of all nodes in the networkx graph
+            ax (_type_): Axis object the graph is plotted with
+            hide_overlapping (bool, optional): Whether or not to hide a station text if a close copy already exists. Defaults to False.
+        """
+        plotted_positions = []
+        plotted_stations = []
+
         for station, description in self.stationDict.items():
             x, y = positions[station]
-            ax.annotate(
-                description,
-                xy=(x, y),
-                xytext=(5, 20),
-                textcoords="offset points",
-                bbox=dict(facecolor="green", alpha=0.4),
-                fontsize=8,
-                horizontalalignment="center",
-                verticalalignment="center",
-            )
+
+            # Check if position is above the threshold for plotting
+            if (
+                not self._is_overlapping(x, y, plotted_positions)
+                and station not in plotted_stations
+                and hide_overlapping
+            ):
+                ax.annotate(
+                    description,
+                    xy=(x, y),
+                    xytext=(5, 20),
+                    textcoords="offset points",
+                    bbox=dict(facecolor="green", alpha=0.4),
+                    fontsize=8,
+                    horizontalalignment="center",
+                    verticalalignment="center",
+                )
+                plotted_positions.append((x, y))
+                plotted_stations.append(station)
 
         return
+
+    def _is_overlapping(
+        self, x: float, y: float, position_list: list, threshold: float = 0.5
+    ) -> bool:
+        """Checks if given position is too close too any other position given in the list
+
+        Args:
+            x (_type_): _description_
+            y (_type_): _description_
+            plotted_positions (_type_): _description_
+            threshold (float, optional): _description_. Defaults to 0.5.
+
+        Returns:
+            bool: _description_
+        """
+        for px, py in position_list:
+            distance = ((x - px) ** 2 + (y - py) ** 2) ** 0.5
+            if distance < threshold:
+                return True
+        return False
