@@ -79,8 +79,8 @@ class LIF_Visualizer:
             with_labels=True,
             connectionstyle="Arc3, rad=0.02",
         )
-
-        self._add_stationTexts_to_graph(pos, ax, hide_overlapping=True)
+        # TODO: Hide overlapping needs to be set by the parser
+        self._add_stationTexts_to_graph(pos, ax, hide_overlapping=False)
         plt.tight_layout()
         fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
         plt.show()
@@ -166,16 +166,13 @@ class LIF_Visualizer:
             hide_overlapping (bool, optional): Whether or not to hide a station text if a close copy already exists. Defaults to False.
         """
         plotted_positions = []
-        plotted_stations = []
-
         for station, description in self.stationDict.items():
             x, y = positions[station]
 
             # Check if position is above the threshold for plotting
             if (
                 not self._is_overlapping(x, y, plotted_positions)
-                and station not in plotted_stations
-                and hide_overlapping
+                and not hide_overlapping
             ):
                 ax.annotate(
                     description,
@@ -188,7 +185,6 @@ class LIF_Visualizer:
                     verticalalignment="center",
                 )
                 plotted_positions.append((x, y))
-                plotted_stations.append(station)
 
         return
 
