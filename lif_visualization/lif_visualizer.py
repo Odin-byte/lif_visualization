@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 
 # Class definition
 
+PI = 3.1415927
+
 
 class LIF_Visualizer:
 
@@ -127,7 +129,7 @@ class LIF_Visualizer:
             # Check if the edge needs to be traversed backwards
             # TODO: Add functionality when multiply vehicles are present in a layout
             properties = edge["vehicleTypeEdgeProperties"][0]
-            if properties["vehicleOrientation"] == 3.14:
+            if properties["vehicleOrientation"] == PI:
                 color = "red"
             else:
                 color = "black"
