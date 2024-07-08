@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-model
+  href="http://download.ros.org/schema/package_format3.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>lif_visualizer</name>
+  <version>0.0.0</version>
+  <description>Python tool to visualize LIF file using NetworkX and Matplotlib.</description>
+  <maintainer email="dominik.werman@4am-robotics.com">Dominik Werman</maintainer>
+  <license>private</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <buildtool_depend condition="$ROS_PYTHON_VERSION == 2">python-setuptools</buildtool_depend>
+  <buildtool_depend condition="$ROS_PYTHON_VERSION == 3">python3-setuptools</buildtool_depend>
+
+  <exec_depend>python-networkx</exec_depend>
+  <exec_depend>python-matplotlib</exec_depend>
+</package>
