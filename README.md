@@ -17,10 +17,12 @@ This tool relies on the following python packages:
 Call the tool using:
 
 ```
-lif_visualizer <path to the LIF JSON file>
+lif_visualizer -f <path to the LIF JSON file>
 ```
-
 After that you can choose one of the available layouts by entering the corresponding number into the console and pressing enter.
+
+### Optional Arguments:
+- --hide-overlapping -> If set, hide overlapping station texts in the graph
 
 ### Legend and color maps
 A simple layout is represented as follows:

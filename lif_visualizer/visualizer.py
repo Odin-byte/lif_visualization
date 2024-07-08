@@ -1,11 +1,7 @@
-# Imports
-
 import networkx as nx
 import json
-
 import matplotlib.pyplot as plt
-
-# Class definition
+import argparse
 
 PI = 3.1415927
 
@@ -48,7 +44,7 @@ class LIF_Visualizer:
 
         return list(self.layouts)[number_layout]
 
-    def visualize_layout(self, layout_id: str) -> None:
+    def visualize_layout(self, layout_id: str, hide_overlapping: bool) -> None:
         """Visualizes a single layout selected by its layout id
 
         Args:
@@ -82,7 +78,7 @@ class LIF_Visualizer:
             connectionstyle="Arc3, rad=0.02",
         )
         # TODO: Hide overlapping needs to be set by the parser
-        self._add_stationTexts_to_graph(pos, ax, hide_overlapping=False)
+        self._add_stationTexts_to_graph(pos, ax, hide_overlapping)
         plt.tight_layout()
         fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
         plt.show()
@@ -172,10 +168,8 @@ class LIF_Visualizer:
             x, y = positions[station]
 
             # Check if position is above the threshold for plotting
-            if (
-                not self._is_overlapping(x, y, plotted_positions)
-                and not hide_overlapping
-            ):
+            if not (hide_overlapping and self._is_overlapping(x, y, plotted_positions)):
+
                 ax.annotate(
                     description,
                     xy=(x, y),
@@ -209,3 +203,25 @@ class LIF_Visualizer:
             if distance < threshold:
                 return True
         return False
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="LIF Visualizer")
+    parser.add_argument("-f", "--filepath", type=str, help="Path to the LIF file")
+    parser.add_argument(
+        "--hide-overlapping",
+        action="store_true",
+        help="Hide overlapping station texts",
+    )
+    args = parser.parse_args()
+
+    visualizer = LIF_Visualizer()
+    visualizer.load_from_file(args.filepath)
+    selected_layout_id = visualizer.layout_selection()
+    visualizer.visualize_layout(
+        selected_layout_id, hide_overlapping=args.hide_overlapping
+    )
+
+
+if __name__ == "__main__":
+    main()
